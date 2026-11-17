@@ -1,0 +1,44 @@
+{
+  "name": "mcp-prompt-commands",
+  "version": "0.1.0",
+  "description": "Turn MCP server prompts into slash-command and skill files for agent UIs that do not show them, with live/static modes and a CI drift check.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "mcp-prompt-commands": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.ko.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "prompts",
+    "slash-commands",
+    "claude-code",
+    "cli"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "pretest": "tsc -p tsconfig.test.json",
+    "test": "node --test dist-test/test/*.test.js",
+    "demo": "npm run build && node scripts/demo.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "smol-toml": "1.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "typescript": "7.0.2",
+    "zod": "4.6.7"
+  }
+}

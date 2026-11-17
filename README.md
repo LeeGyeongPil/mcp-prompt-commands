@@ -31,7 +31,7 @@ npm ci && npm run build
 node dist/cli.js --version
 ```
 ```text
-0.1.0
+0.1.1
 ```
 
 `npx` starts a fresh Node process every time, which costs a few seconds on a cold cache. For the `live` mode below, a global install is recommended.
@@ -121,7 +121,7 @@ Without `--config`, the tool reads the MCP configs you already have (see "Config
    mcp-prompt-commands generate
    ```
    Relative to the project folder, this writes:
-   - `.claude/commands/<server>/<prompt>.md`: one command file per prompt (or `.claude/skills/<server>-<prompt>/SKILL.md` with `--format skills`)
+   - `.claude/commands/<server>/<prompt>.md`: one command file per prompt (or `.claude/skills/<server>-<prompt>/SKILL.md` with `--format skills`; skill names are lowercased with `_` turned into `-` to follow the Agent Skills spec; the `SKILL.md` of an old underscore-named skill is deleted on the next `generate` if it is still the untouched generated file, edited ones are kept)
    - `.claude/mcp-prompt-commands.lock.json`: the lock file `check` compares against
 3. Open the project in the agent screen and type `/<server>:<prompt>`, for example `/docs:code_review`. The screen asks for the declared arguments.
 
@@ -134,7 +134,7 @@ node dist/cli.js generate --config examples/mcp.json --out demo-out --bin node d
 error: "generate" does not take extra arguments, got: dist/cli.js. If they are part of --bin, quote the whole value: --bin "node dist/cli.js"
 ```
 
-If you cannot install globally, pass the command the files should call: `--bin "npx -y mcp-prompt-commands@0.1.0"`. Every run then starts `npx`, so `live` commands are slower; use `--mode static` if that matters. Commit the generated files if the team should share them.
+If you cannot install globally, pass the command the files should call: `--bin "npx -y mcp-prompt-commands@0.1.1"`. Every run then starts `npx`, so `live` commands are slower; use `--mode static` if that matters. Commit the generated files if the team should share them.
 
 ## CI drift check
 
@@ -151,7 +151,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: npx -y mcp-prompt-commands@0.1.0 check
+      - run: npx -y mcp-prompt-commands@0.1.1 check
 ```
 
 This workflow is a template: the `check` command was run locally (step 5), but the workflow itself was not executed on GitHub. Prerequisites:

@@ -31,7 +31,7 @@ npm ci && npm run build
 node dist/cli.js --version
 ```
 ```text
-0.1.0
+0.1.1
 ```
 
 `npx` 는 매번 새 Node 프로세스를 띄우므로 캐시가 없으면 몇 초가 더 걸립니다. 아래 `live` 모드에는 전역 설치를 권합니다.
@@ -121,7 +121,7 @@ Dry run: nothing is written.
    mcp-prompt-commands generate
    ```
    프로젝트 폴더 기준으로 다음이 쓰입니다.
-   - `.claude/commands/<서버>/<프롬프트>.md`: 프롬프트마다 명령 파일 하나(`--format skills` 이면 `.claude/skills/<서버>-<프롬프트>/SKILL.md`)
+   - `.claude/commands/<서버>/<프롬프트>.md`: 프롬프트마다 명령 파일 하나(`--format skills` 이면 `.claude/skills/<서버>-<프롬프트>/SKILL.md`, 스킬 이름은 Agent Skills 규격에 맞게 `_` 를 `-` 로 바꿈. 예전 밑줄 이름 스킬의 `SKILL.md` 는 생성된 그대로(수정 안 함)이면 다음 `generate` 때 삭제, 수정한 것은 유지)
    - `.claude/mcp-prompt-commands.lock.json`: `check` 가 비교하는 lock 파일
 3. 에이전트 화면에서 프로젝트를 열고 `/<서버>:<프롬프트>` 를 입력합니다(예: `/docs:code_review`). 화면이 선언된 인자를 물어봅니다.
 
@@ -134,7 +134,7 @@ node dist/cli.js generate --config examples/mcp.json --out demo-out --bin node d
 오류: "generate" 는 추가 인자를 받지 않습니다. 받은 값: dist/cli.js. --bin 값의 일부라면 값 전체를 따옴표로 묶으세요: --bin "node dist/cli.js"
 ```
 
-전역 설치가 어렵다면 파일이 호출할 명령을 지정하세요: `--bin "npx -y mcp-prompt-commands@0.1.0"`. 그러면 실행 때마다 `npx` 가 뜨므로 `live` 명령이 느려집니다. 그게 문제면 `--mode static` 을 쓰세요. 팀이 함께 쓰려면 생성된 파일을 커밋하세요.
+전역 설치가 어렵다면 파일이 호출할 명령을 지정하세요: `--bin "npx -y mcp-prompt-commands@0.1.1"`. 그러면 실행 때마다 `npx` 가 뜨므로 `live` 명령이 느려집니다. 그게 문제면 `--mode static` 을 쓰세요. 팀이 함께 쓰려면 생성된 파일을 커밋하세요.
 
 ## CI 드리프트 검사
 
@@ -151,7 +151,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: npx -y mcp-prompt-commands@0.1.0 check
+      - run: npx -y mcp-prompt-commands@0.1.1 check
 ```
 
 이 워크플로는 템플릿입니다. `check` 명령은 로컬에서 실행해 확인했지만(5단계), 워크플로 자체를 GitHub 에서 돌려 보지는 않았습니다. 전제 조건:

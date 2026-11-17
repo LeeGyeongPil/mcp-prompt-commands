@@ -15,7 +15,7 @@ import {
   type Lock,
   type LockPrompt,
 } from "../lock.js";
-import { resolveNames } from "../names.js";
+import { resolveNames, skillDirName } from "../names.js";
 import { renderMessages } from "../render.js";
 import type { PromptDef } from "../types.js";
 import { loadDiscovery, runOnServers, say, selectServers, serverIds, type Context } from "./common.js";
@@ -127,8 +127,7 @@ export async function generateCommand(ctx: Context): Promise<number> {
       if (id.collided) {
         warnings.push({ key: "warn.name_collision", params: { server: o.spec.name, prompt: def.name, id: id.id } });
       }
-      let skillDir = `${serverId}-${id.id}`;
-      for (let n = 2; usedSkillDirs.has(skillDir); n += 1) skillDir = `${serverId}-${id.id}-${n}`;
+      const skillDir = skillDirName(serverId, id.id, usedSkillDirs);
       if (opts.format === "skills") usedSkillDirs.add(skillDir);
 
       const pr = probes.get(def.name);
@@ -183,7 +182,8 @@ export async function generateCommand(ctx: Context): Promise<number> {
 
     // Files from an earlier run whose prompt is gone: remove only ones we generated and nobody edited.
     for (const [name, old] of Object.entries(previous)) {
-      if (name in entry) continue;
+      // Keep it only when the prompt still exists and still maps to the same file.
+      if (Object.values(entry).some((e) => e.file === old.file)) continue;
       const abs = join(outDir, old.file);
       if (!existsSync(abs)) continue;
       const text = readFileSync(abs, "utf8");

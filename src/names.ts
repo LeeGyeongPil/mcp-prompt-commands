@@ -45,3 +45,30 @@ export function findByNameOrId<T extends { name: string }>(items: T[], query: st
   const hit = resolved.find((r) => r.id === query);
   return hit ? items.find((i) => i.name === hit.original) : undefined;
 }
+
+/** Agent Skills spec: lowercase letters, digits and single hyphens, at most 64 characters. */
+const SKILL_NAME_MAX = 64;
+
+function skillSlug(s: string, max: number): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, max)
+    .replace(/-+$/g, "");
+}
+
+/**
+ * Builds a spec-valid skill directory/name from "<serverId>-<promptId>": underscores become hyphens,
+ * runs collapse, ends are trimmed, and the result is cut to 64 characters. When `taken` already has
+ * it, "-2", "-3", ... is appended (suffix included in the 64 characters).
+ */
+export function skillDirName(serverId: string, promptId: string, taken: ReadonlySet<string>): string {
+  const base = skillSlug(`${serverId}-${promptId}`, SKILL_NAME_MAX) || "unnamed";
+  let name = base;
+  for (let n = 2; taken.has(name); n += 1) {
+    const suffix = `-${n}`;
+    name = `${skillSlug(base, SKILL_NAME_MAX - suffix.length) || "unnamed"}${suffix}`;
+  }
+  return name;
+}

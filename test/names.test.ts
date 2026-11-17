@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { findByNameOrId, normalizeName, resolveNames } from "../src/names.js";
+import { findByNameOrId, normalizeName, resolveNames, skillDirName } from "../src/names.js";
 import { runCli, tmpDir, writeStdioConfig } from "./helpers.js";
 
 test("names: normalize and resolve collisions", (t) => {
@@ -35,4 +35,18 @@ test("names: normalize and resolve collisions", (t) => {
   }
   const got = runCli(["get", "mock", "release-notes-2", "--config", "servers.json"], { cwd: dir });
   assert.equal(got.stdout.trim(), "release notes");
+});
+
+test("names: skill directory names follow the Agent Skills spec", () => {
+  const none = new Set<string>();
+  assert.equal(skillDirName("mock", "code_review", none), "mock-code-review");
+  assert.equal(skillDirName("my_srv", "a__b", none), "my-srv-a-b");
+  // Over 64 characters: cut, no trailing hyphen.
+  const long = skillDirName("mock", `${"a".repeat(58)}_zzz`, none);
+  assert.ok(long.length <= 64 && !long.endsWith("-") && /^[a-z0-9-]+$/.test(long), long);
+  // Collisions get -2, -3 and stay within 64 characters.
+  assert.equal(skillDirName("mock", "code_review", new Set(["mock-code-review"])), "mock-code-review-2");
+  const taken = new Set([long]);
+  const second = skillDirName("mock", `${"a".repeat(58)}_zzz`, taken);
+  assert.ok(second.length <= 64 && second.endsWith("-2") && second !== long, second);
 });

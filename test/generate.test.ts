@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -39,8 +39,8 @@ test("generate: frontmatter and 0-based named argument mapping", (t) => {
   // Skills format: directory per prompt with the name in the frontmatter.
   const s = generate(dir, "", ["--format", "skills", "--out", "out2"]);
   assert.equal(s.code, 0, s.stderr);
-  const skill = readFileSync(join(dir, "out2", "skills", "mock-code_review", "SKILL.md"), "utf8");
-  assert.match(skill, /^name: mock-code_review$/m);
+  const skill = readFileSync(join(dir, "out2", "skills", "mock-code-review", "SKILL.md"), "utf8");
+  assert.match(skill, /^name: mock-code-review$/m);
   assert.match(skill, /^arguments: \[path, focus\]$/m);
 });
 
@@ -149,4 +149,45 @@ test("static: renders offline without server", (t) => {
   assert.ok(sim.body.includes("### assistant\nSure. Send me the file contents."));
   assert.ok(sim.body.includes("Use 2-space indent."));
   assert.ok(sim.body.includes("Required arguments: path."));
+});
+
+/** Rewrites an up-to-date skills output so it looks like one made by an older version (underscore folder). */
+function makeLegacySkills(dir: string, edit: boolean): string {
+  const lockPath = join(dir, "out", "mcp-prompt-commands.lock.json");
+  const newDir = join(dir, "out", "skills", "mock-code-review");
+  const oldDir = join(dir, "out", "skills", "mock-code_review");
+  const content = readFileSync(join(newDir, "SKILL.md"), "utf8");
+  rmSync(newDir, { recursive: true });
+  mkdirSync(oldDir, { recursive: true });
+  writeFileSync(join(oldDir, "SKILL.md"), edit ? `${content}\nmy own note\n` : content);
+  const lock = JSON.parse(readFileSync(lockPath, "utf8"));
+  for (const server of Object.values<any>(lock.servers)) {
+    const p = server.prompts["code_review"];
+    if (p) p.file = "skills/mock-code_review/SKILL.md";
+  }
+  writeFileSync(lockPath, JSON.stringify(lock, null, 2));
+  return join(oldDir, "SKILL.md");
+}
+
+test("generate: old underscore skills folder is removed when unedited", (t) => {
+  const dir = tmpDir(t);
+  assert.equal(generate(dir, "", ["--format", "skills"]).code, 0);
+  const oldFile = makeLegacySkills(dir, false);
+  const g = generate(dir, "", ["--format", "skills"]);
+  assert.equal(g.code, 0, g.stderr);
+  assert.ok(!existsSync(oldFile), "old file removed");
+  assert.ok(existsSync(join(dir, "out", "skills", "mock-code-review", "SKILL.md")), "new file created");
+  const lock = readFileSync(join(dir, "out", "mcp-prompt-commands.lock.json"), "utf8");
+  assert.ok(lock.includes("skills/mock-code-review/SKILL.md"));
+  assert.ok(!lock.includes("mock-code_review"));
+});
+
+test("generate: old underscore skills folder is kept when edited", (t) => {
+  const dir = tmpDir(t);
+  assert.equal(generate(dir, "", ["--format", "skills"]).code, 0);
+  const oldFile = makeLegacySkills(dir, true);
+  const g = generate(dir, "", ["--format", "skills"]);
+  assert.equal(g.code, 0, g.stderr);
+  assert.ok(existsSync(oldFile), "edited file kept");
+  assert.ok(existsSync(join(dir, "out", "skills", "mock-code-review", "SKILL.md")));
 });

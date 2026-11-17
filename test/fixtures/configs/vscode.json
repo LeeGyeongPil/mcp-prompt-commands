@@ -1,0 +1,9 @@
+{
+  "inputs": [{ "type": "promptString", "id": "api-key", "description": "API key", "password": true }],
+  "servers": {
+    "shared": { "type": "stdio", "command": "node", "args": ["${MOCK_STDIO}"] },
+    "vs-only": { "type": "stdio", "command": "node", "args": ["${workspaceFolder}/server.js"] },
+    "needs-input": { "type": "http", "url": "http://127.0.0.1:1/mcp", "headers": { "Authorization": "Bearer ${input:api-key}" } },
+    "legacy-sse": { "type": "sse", "url": "http://127.0.0.1:1/sse" }
+  }
+}

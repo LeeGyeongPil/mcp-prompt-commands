@@ -1,0 +1,12 @@
+[mcp_servers.codex-only]
+command = "node"
+args = ["${MOCK_STDIO}"]
+env = { MOCK_VARIANT = "paged" }
+
+[mcp_servers.codex-remote]
+url = "http://127.0.0.1:1/mcp"
+bearer_token_env_var = "CODEX_TOKEN"
+
+[mcp_servers.codex-off]
+command = "node"
+enabled = false

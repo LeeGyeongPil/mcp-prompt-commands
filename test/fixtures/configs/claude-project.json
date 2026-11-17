@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "shared": { "command": "node", "args": ["${MOCK_STDIO}"], "env": { "MOCK_VARIANT": "${PROJECT_VARIANT:-}" } },
+    "proj-only": { "command": "node", "args": ["${MOCK_STDIO}"] },
+    "remote": { "type": "http", "url": "${API_BASE:-http://127.0.0.1:1}/mcp", "headers": { "x-api-key": "${API_KEY}" } },
+    "no-type": { "url": "http://127.0.0.1:1/mcp" },
+    "oauth-server": { "type": "http", "url": "http://127.0.0.1:1/mcp", "oauth": { "clientId": "example" } }
+  }
+}

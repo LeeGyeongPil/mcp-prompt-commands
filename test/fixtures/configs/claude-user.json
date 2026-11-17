@@ -1,0 +1,18 @@
+{
+  "numStartups": 3,
+  "mcpServers": {
+    "shared": { "command": "node", "args": ["${MOCK_STDIO}"] },
+    "user-only": { "command": "node", "args": ["${MOCK_STDIO}"] }
+  },
+  "projects": {
+    "__CWD__": {
+      "mcpServers": {
+        "shared": { "type": "stdio", "command": "node", "args": ["${MOCK_STDIO}"] },
+        "local-only": { "command": "node", "args": ["${MOCK_STDIO}"] }
+      }
+    },
+    "/some/other/project": {
+      "mcpServers": { "not-mine": { "command": "node", "args": ["x"] } }
+    }
+  }
+}

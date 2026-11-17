@@ -1,6 +1,6 @@
 {
   "name": "mcp-prompt-commands",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Turn MCP server prompts into slash-command and skill files for agent UIs that do not show them, with live/static modes and a CI drift check.",
   "type": "module",
   "license": "MIT",
